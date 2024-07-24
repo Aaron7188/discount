@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coupon Generator</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 50px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 600px;
+        }
+        .btn-custom {
+            margin-top: 10px;
+        }
+        #result, #redeem-result {
+            margin-top: 20px;
+        }
+    </style>
+    <script>
+        async function generateCode(endpoint) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = ''; // Clear previous results
+            const response = await fetch(endpoint, { method: 'POST' });
+            const data = await response.json();
+            resultDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <strong>Code:</strong> ${data.code}<br>
+                    <strong>Created At:</strong> ${new Date(data.created_at).toLocaleString()}
+                </div>`;
+        }
+
+        async function redeemCode(event) {
+            event.preventDefault();
+            const resultDiv = document.getElementById('redeem-result');
+            resultDiv.innerHTML = ''; // Clear previous results
+            const code = document.getElementById('redeem-code').value;
+            const response = await fetch('/redeem_discount_code', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                resultDiv.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+            } else {
+                resultDiv.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+            }
+            document.getElementById('redeem-code').value = ''; // Clear input field
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Coupon Generator</h1>
+        <div class="text-center">
+            <button class="btn btn-primary btn-custom" onclick="generateCode('/generate_lottery_code')">Generate Lottery Code</button>
+            <button class="btn btn-success btn-custom" onclick="generateCode('/generate_discount_code')">Generate Discount Code</button>
+        </div>
+        <div id="result"></div>
+
+        <h2 class="text-center mt-5">Redeem Discount Code</h2>
+        <form class="text-center" onsubmit="redeemCode(event)">
+            <input type="text" id="redeem-code" class="form-control d-inline-block w-75" placeholder="Enter discount code" required>
+            <button type="submit" class="btn btn-danger btn-custom">Redeem</button>
+        </form>
+        <div id="redeem-result" class="text-center"></div>
+    </div>
+</body>
+</html>
