@@ -19,6 +19,14 @@
         #result, #redeem-result {
             margin-top: 20px;
         }
+        .copy-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            display: none;
+        }
     </style>
     <script>
         async function generateCode(endpoint, label) {
@@ -65,10 +73,18 @@
             const createdAt = document.getElementById('created-at').textContent;
             const textToCopy = `${label}: ${code}\nKwai ID: ${kwaiId}\nCreated At: ${createdAt}`;
             navigator.clipboard.writeText(textToCopy).then(() => {
-                alert('Copied to clipboard');
+                showCopyAlert();
             }).catch(err => {
                 alert('Failed to copy: ', err);
             });
+        }
+
+        function showCopyAlert() {
+            const copyAlert = document.getElementById('copy-alert');
+            copyAlert.style.display = 'block';
+            setTimeout(() => {
+                copyAlert.style.display = 'none';
+            }, 1000); // Show the alert for 1 second
         }
     </script>
 </head>
@@ -93,6 +109,9 @@
         <div class="text-center">
             <a href="/draw" class="btn btn-warning btn-custom">Go to Draw Lottery</a>
         </div>
+    </div>
+    <div id="copy-alert" class="alert alert-info copy-alert">
+        Copied to clipboard!
     </div>
 </body>
 </html>
