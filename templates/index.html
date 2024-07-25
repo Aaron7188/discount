@@ -21,7 +21,7 @@
         }
     </style>
     <script>
-        async function generateCode(endpoint) {
+        async function generateCode(endpoint, label) {
             const kwaiId = document.getElementById('kwai-id').value;
             const resultDiv = document.getElementById('result');
             resultDiv.innerHTML = ''; // Clear previous results
@@ -33,9 +33,10 @@
             const data = await response.json();
             resultDiv.innerHTML = `
                 <div class="alert alert-success">
-                    <strong>Code:</strong> <span id="generated-code">${data.code}</span><br>
+                    <strong>${label}:</strong> <span id="generated-code">${data.code}</span><br>
+                    <strong>Kwai ID:</strong> <span id="kwai-id-value">${data.kwai_id}</span><br>
                     <strong>Created At:</strong> <span id="created-at">${new Date(data.created_at).toLocaleString()}</span><br>
-                    <button class="btn btn-secondary mt-2" onclick="copyToClipboard()">Copy</button>
+                    <button class="btn btn-secondary mt-2" onclick="copyToClipboard('${label}')">Copy</button>
                 </div>`;
         }
 
@@ -58,10 +59,11 @@
             document.getElementById('redeem-code').value = ''; // Clear input field
         }
 
-        function copyToClipboard() {
+        function copyToClipboard(label) {
             const code = document.getElementById('generated-code').textContent;
+            const kwaiId = document.getElementById('kwai-id-value').textContent;
             const createdAt = document.getElementById('created-at').textContent;
-            const textToCopy = `Code: ${code}\nCreated At: ${createdAt}`;
+            const textToCopy = `${label}: ${code}\nKwai ID: ${kwaiId}\nCreated At: ${createdAt}`;
             navigator.clipboard.writeText(textToCopy).then(() => {
                 alert('Copied to clipboard');
             }).catch(err => {
@@ -75,8 +77,8 @@
         <h1 class="text-center">Coupon Generator</h1>
         <div class="text-center">
             <input type="text" id="kwai-id" class="form-control mb-3" placeholder="Enter Kwai ID" required>
-            <button class="btn btn-primary btn-custom" onclick="generateCode('/generate_lottery_code')">Generate Lottery Code</button>
-            <button class="btn btn-success btn-custom" onclick="generateCode('/generate_discount_code')">Generate Discount Code</button>
+            <button class="btn btn-primary btn-custom" onclick="generateCode('/generate_lottery_code', 'Lottery Code')">Generate Lottery Code</button>
+            <button class="btn btn-success btn-custom" onclick="generateCode('/generate_discount_code', 'Discount Code')">Generate Discount Code</button>
         </div>
         <div id="result"></div>
 
