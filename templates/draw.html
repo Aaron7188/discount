@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draw Lottery</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 50px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 600px;
+        }
+        .slot {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ccc;
+            text-align: center;
+            font-size: 24px;
+            margin: 5px;
+        }
+    </style>
+    <script>
+        let slots = [];
+        let stopSlots = [];
+        function startRolling() {
+            stopSlots = [false, false, false, false, false, false];
+            slots.forEach((slot, index) => {
+                slot.interval = setInterval(() => {
+                    slot.element.textContent = getRandomChar();
+                }, 100);
+            });
+        }
+
+        function stopRolling() {
+            fetch('/draw_lottery', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code) {
+                        data.code.split('').forEach((char, index) => {
+                            clearInterval(slots[index].interval);
+                            slots[index].element.textContent = char;
+                        });
+                    }
+                });
+        }
+
+        function getRandomChar() {
+            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            return chars[Math.floor(Math.random() * chars.length)];
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            slots = Array.from(document.querySelectorAll('.slot')).map(slot => ({ element: slot }));
+            document.getElementById('start-button').addEventListener('click', startRolling);
+            document.getElementById('stop-button').addEventListener('click', stopRolling);
+        });
+    </script>
+</head>
+<body>
+    <div class="container text-center">
+        <h1>Draw Lottery</h1>
+        <div id="slots">
+            <div class="slot">a</div>
+            <div class="slot">a</div>
+            <div class="slot">a</div>
+            <div class="slot">a</div>
+            <div class="slot">a</div>
+            <div class="slot">a</div>
+        </div>
+        <div class="mt-3">
+            <button id="start-button" class="btn btn-primary">Start</button>
+            <button id="stop-button" class="btn btn-danger">Stop</button>
+        </div>
+    </div>
+</body>
+</html>

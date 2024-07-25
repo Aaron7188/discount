@@ -23,10 +23,6 @@
     <script>
         async function generateCode(endpoint) {
             const kwaiId = document.getElementById('kwai-id').value;
-            if (!kwaiId) {
-                alert('Please enter Kwai ID');
-                return;
-            }
             const resultDiv = document.getElementById('result');
             resultDiv.innerHTML = ''; // Clear previous results
             const response = await fetch(endpoint, {
@@ -37,7 +33,6 @@
             const data = await response.json();
             resultDiv.innerHTML = `
                 <div class="alert alert-success">
-                    <strong>Kwai ID:</strong> ${data.kwai_id}<br>
                     <strong>Code:</strong> ${data.code}<br>
                     <strong>Created At:</strong> ${new Date(data.created_at).toLocaleString()}
                 </div>`;
@@ -66,10 +61,8 @@
 <body>
     <div class="container">
         <h1 class="text-center">Coupon Generator</h1>
-        <div class="form-group">
-            <input type="text" id="kwai-id" class="form-control" placeholder="Enter Kwai ID" required>
-        </div>
         <div class="text-center">
+            <input type="text" id="kwai-id" class="form-control mb-3" placeholder="Enter Kwai ID" required>
             <button class="btn btn-primary btn-custom" onclick="generateCode('/generate_lottery_code')">Generate Lottery Code</button>
             <button class="btn btn-success btn-custom" onclick="generateCode('/generate_discount_code')">Generate Discount Code</button>
         </div>
@@ -81,6 +74,11 @@
             <button type="submit" class="btn btn-danger btn-custom">Redeem</button>
         </form>
         <div id="redeem-result" class="text-center"></div>
+
+        <h2 class="text-center mt-5">Draw Lottery</h2>
+        <div class="text-center">
+            <a href="/draw" class="btn btn-warning btn-custom">Go to Draw Lottery</a>
+        </div>
     </div>
 </body>
 </html>

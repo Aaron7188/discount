@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import random
 import string
@@ -23,6 +23,11 @@ class DiscountCode(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     redeemed = db.Column(db.Boolean, default=False)
 
+class Result(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(6), unique=True, nullable=False)
+    status = db.Column(db.Boolean, default=False)
+
 with app.app_context():
     db.create_all()
 
@@ -37,7 +42,7 @@ def home():
 def generate_lottery_code():
     data = request.get_json()
     kwai_id = data.get('kwai_id')
-    code = generate_code(6, string.ascii_letters + string.digits)
+    code = generate_code(6, string.ascii_lowercase + string.digits)
     new_code = LotteryCode(code=code, kwai_id=kwai_id)
     db.session.add(new_code)
     db.session.commit()
@@ -63,6 +68,19 @@ def redeem_discount_code():
         db.session.commit()
         return jsonify({'message': 'Code redeemed successfully'})
     return jsonify({'message': 'Invalid or already redeemed code'}), 400
+
+@app.route('/draw')
+def draw_page():
+    return render_template('draw.html')
+
+@app.route('/draw_lottery', methods=['POST'])
+def draw_lottery():
+    result = Result.query.filter_by(status=False).first()
+    if result:
+        result.status = True
+        db.session.commit()
+        return jsonify({'code': result.code})
+    return jsonify({'message': 'No more available codes'}), 400
 
 if __name__ == '__main__':
     app.run(debug=True)
