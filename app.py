@@ -13,11 +13,13 @@ db = SQLAlchemy(app)
 class LotteryCode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(6), unique=True, nullable=False)
+    kwai_id = db.Column(db.String(20), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class DiscountCode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(8), unique=True, nullable=False)
+    kwai_id = db.Column(db.String(20), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     redeemed = db.Column(db.Boolean, default=False)
 
@@ -27,26 +29,29 @@ with app.app_context():
 def generate_code(length, chars):
     return ''.join(random.choice(chars) for _ in range(length))
 
-
 @app.route('/')
 def home():
     return render_template('index.html')
 
 @app.route('/generate_lottery_code', methods=['POST'])
 def generate_lottery_code():
+    data = request.get_json()
+    kwai_id = data.get('kwai_id')
     code = generate_code(6, string.ascii_letters + string.digits)
-    new_code = LotteryCode(code=code)
+    new_code = LotteryCode(code=code, kwai_id=kwai_id)
     db.session.add(new_code)
     db.session.commit()
-    return jsonify({'code': code, 'created_at': new_code.created_at})
+    return jsonify({'code': code, 'created_at': new_code.created_at, 'kwai_id': kwai_id})
 
 @app.route('/generate_discount_code', methods=['POST'])
 def generate_discount_code():
+    data = request.get_json()
+    kwai_id = data.get('kwai_id')
     code = generate_code(8, string.ascii_letters)
-    new_code = DiscountCode(code=code)
+    new_code = DiscountCode(code=code, kwai_id=kwai_id)
     db.session.add(new_code)
     db.session.commit()
-    return jsonify({'code': code, 'created_at': new_code.created_at})
+    return jsonify({'code': code, 'created_at': new_code.created_at, 'kwai_id': kwai_id})
 
 @app.route('/redeem_discount_code', methods=['POST'])
 def redeem_discount_code():

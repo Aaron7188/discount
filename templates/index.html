@@ -22,12 +22,22 @@
     </style>
     <script>
         async function generateCode(endpoint) {
+            const kwaiId = document.getElementById('kwai-id').value;
+            if (!kwaiId) {
+                alert('Please enter Kwai ID');
+                return;
+            }
             const resultDiv = document.getElementById('result');
             resultDiv.innerHTML = ''; // Clear previous results
-            const response = await fetch(endpoint, { method: 'POST' });
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ kwai_id: kwaiId })
+            });
             const data = await response.json();
             resultDiv.innerHTML = `
                 <div class="alert alert-success">
+                    <strong>Kwai ID:</strong> ${data.kwai_id}<br>
                     <strong>Code:</strong> ${data.code}<br>
                     <strong>Created At:</strong> ${new Date(data.created_at).toLocaleString()}
                 </div>`;
@@ -56,6 +66,9 @@
 <body>
     <div class="container">
         <h1 class="text-center">Coupon Generator</h1>
+        <div class="form-group">
+            <input type="text" id="kwai-id" class="form-control" placeholder="Enter Kwai ID" required>
+        </div>
         <div class="text-center">
             <button class="btn btn-primary btn-custom" onclick="generateCode('/generate_lottery_code')">Generate Lottery Code</button>
             <button class="btn btn-success btn-custom" onclick="generateCode('/generate_discount_code')">Generate Discount Code</button>
