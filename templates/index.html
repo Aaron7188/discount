@@ -33,8 +33,9 @@
             const data = await response.json();
             resultDiv.innerHTML = `
                 <div class="alert alert-success">
-                    <strong>Code:</strong> ${data.code}<br>
-                    <strong>Created At:</strong> ${new Date(data.created_at).toLocaleString()}
+                    <strong>Code:</strong> <span id="generated-code">${data.code}</span><br>
+                    <strong>Created At:</strong> <span id="created-at">${new Date(data.created_at).toLocaleString()}</span><br>
+                    <button class="btn btn-secondary mt-2" onclick="copyToClipboard()">Copy</button>
                 </div>`;
         }
 
@@ -55,6 +56,17 @@
                 resultDiv.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
             }
             document.getElementById('redeem-code').value = ''; // Clear input field
+        }
+
+        function copyToClipboard() {
+            const code = document.getElementById('generated-code').textContent;
+            const createdAt = document.getElementById('created-at').textContent;
+            const textToCopy = `Code: ${code}\nCreated At: ${createdAt}`;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert('Copied to clipboard');
+            }).catch(err => {
+                alert('Failed to copy: ', err);
+            });
         }
     </script>
 </head>
